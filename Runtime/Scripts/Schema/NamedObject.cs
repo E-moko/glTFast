@@ -20,7 +20,7 @@ namespace GLTFast.Schema
     /// Base class for anything with a name property
     /// </summary>
     [System.Serializable]
-    public abstract class NamedObject
+    public abstract class NamedObject<TExtra> where TExtra : BaseExtras
     {
 
         /// <summary>
@@ -28,11 +28,39 @@ namespace GLTFast.Schema
         /// </summary>
         public string name;
 
+        public TExtra extras;
+
         internal void GltfSerializeRoot(JsonWriter writer)
         {
             if (!string.IsNullOrEmpty(name))
             {
                 writer.AddProperty("name", name);
+            }
+
+            if(extras != null)
+            {
+                writer.AddProperty("extras");
+                extras.GltfSerialize(writer);
+            }
+        }
+    }
+
+    [System.Serializable]
+    public abstract class NamedObject : NamedObject<BaseExtras>
+    {
+
+    }
+
+    [System.Serializable]
+    public class BaseExtras
+    {
+        public string emk_identity;
+
+        internal virtual void GltfSerialize(JsonWriter writer)
+        {
+            if (!string.IsNullOrEmpty(emk_identity))
+            {
+                writer.AddProperty("emk_identity", emk_identity);
             }
         }
     }

@@ -23,8 +23,7 @@ namespace GLTFast.Schema
     /// The material appearance of a primitive.
     /// </summary>
     [System.Serializable]
-    public class Material : NamedObject
-    {
+    public class Material : NamedObject<BaseExtras> {
 
         /// <summary>
         /// The material’s alpha rendering mode enumeration specifying the

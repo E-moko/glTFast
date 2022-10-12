@@ -16,13 +16,26 @@
 namespace GLTFast.Schema
 {
 
+    [System.Serializable]
+    public class NodeExtras : BaseExtras {
+        public string emk_source_guid;
+
+        internal override void GltfSerialize(JsonWriter writer)
+        {
+            base.GltfSerialize(writer);
+            if (!string.IsNullOrEmpty(emk_source_guid))
+            {
+                writer.AddProperty("emk_source_guid", emk_source_guid);
+            }
+        }
+    }
+
     /// <summary>
     /// An object defining the hierarchy relations and the local transform of
     /// its content.
     /// </summary>
     [System.Serializable]
-    public class Node : NamedObject
-    {
+    public class Node : NamedObject<NodeExtras> {
 
         /// <summary>
         /// The indices of this node's children.

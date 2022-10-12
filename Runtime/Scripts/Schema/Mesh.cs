@@ -22,9 +22,8 @@ namespace GLTFast.Schema
     /// A set of primitives to be rendered. Its global transform is defined by
     /// a node that references it.
     /// </summary>
-    [Serializable]
-    public class Mesh : NamedObject, ICloneable
-    {
+    [System.Serializable]
+    public class Mesh : NamedObject<MeshExtras>, ICloneable {
 
         /// <summary>
         /// An array of primitives, each defining geometry to be rendered with
@@ -38,9 +37,6 @@ namespace GLTFast.Schema
         /// <minItems>0</minItems>
         /// </summary>
         public float[] weights;
-
-        /// <inheritdoc cref="MeshExtras"/>
-        public MeshExtras extras;
 
         /// <summary>
         /// Clones the Mesh object
@@ -92,10 +88,9 @@ namespace GLTFast.Schema
     /// <summary>
     /// Mesh specific extra data.
     /// </summary>
-    [Serializable]
-    public class MeshExtras
-    {
-
+    [System.Serializable]
+    public class MeshExtras: BaseExtras {
+        
         /// <summary>
         /// Morph targets' names
         /// </summary>
