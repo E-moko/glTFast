@@ -96,10 +96,9 @@ namespace GLTFast.Schema
         /// </summary>
         public string[] targetNames;
 
-        internal void GltfSerialize(JsonWriter writer)
-        {
-            if (targetNames != null)
-            {
+        internal override void GltfSerialize(JsonWriter writer) {
+            base.GltfSerialize(writer);
+            if (targetNames != null) {
                 writer.AddArrayProperty("targetNames", targetNames);
             }
         }
