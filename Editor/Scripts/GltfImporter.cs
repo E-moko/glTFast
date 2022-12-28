@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GLTFast.Logging;
+using GLTFast.Materials;
 using GLTFast.Utils;
 using UnityEditor;
 #if UNITY_2020_2_OR_NEWER
@@ -53,7 +54,7 @@ namespace GLTFast.Editor
 #else
     [ScriptedImporter(1, null, overrideExts: new[] { "gltf","glb" })]
 #endif
-    class GltfImporter : ScriptedImporter
+    public class GltfImporter : ScriptedImporter
     {
 
         [SerializeField]
@@ -79,6 +80,17 @@ namespace GLTFast.Editor
         HashSet<string> m_ImportedNames;
         HashSet<Object> m_ImportedObjects;
 
+        public delegate IInstantiator InstanciatiorDelegate(GltfImport m_Gltf, Transform transform, ICollectingLogger instantiationLogger, InstantiationSettings instantiationSettings);
+
+        public static InstanciatiorDelegate GetInstantiator = GetDefaultInstantiator;
+        public static Func<IMaterialGenerator> GetMaterialGenerator { get; set; } = () => null;
+        public static Func<ICollectingLogger> GetLogger { get; set; } = () => new CollectingLogger();
+
+        static GameObjectInstantiator GetDefaultInstantiator(GltfImport m_Gltf, Transform transform, ICollectingLogger instantiationLogger, InstantiationSettings instantiationSettings)
+        {
+            return new GameObjectInstantiator(m_Gltf, transform, instantiationLogger, instantiationSettings);
+        }
+
         // static string[] GatherDependenciesFromSourceFile(string path) {
         //     // Called before actual import for each changed asset that is imported by this importer type
         //     // Extract the dependencies for the asset specified in path.
@@ -94,12 +106,12 @@ namespace GLTFast.Editor
             reportItems = null;
 
             var downloadProvider = new EditorDownloadProvider();
-            var logger = new CollectingLogger();
+            var logger = GetLogger();
 
             m_Gltf = new GltfImport(
                 downloadProvider,
                 new UninterruptedDeferAgent(),
-                null,
+                GetMaterialGenerator(),
                 logger
                 );
 
@@ -130,7 +142,7 @@ namespace GLTFast.Editor
 
             var success = AsyncHelpers.RunSync(() => m_Gltf.Load(ctx.assetPath, importSettings));
 
-            CollectingLogger instantiationLogger = null;
+            ICollectingLogger instantiationLogger = null;
             if (success)
             {
                 m_ImportedNames = new HashSet<string>();
@@ -147,13 +159,13 @@ namespace GLTFast.Editor
                     Debug.LogWarning("SceneObjectCreation setting \"Never\" is not available for Editor (design-time) imports. Falling back to WhenMultipleRootNodes.", this);
                 }
 
-                instantiationLogger = new CollectingLogger();
+                instantiationLogger = GetLogger();
                 for (var sceneIndex = 0; sceneIndex < m_Gltf.SceneCount; sceneIndex++)
                 {
                     var scene = m_Gltf.GetSourceScene(sceneIndex);
                     var sceneName = m_Gltf.GetSceneName(sceneIndex);
                     var go = new GameObject(sceneName);
-                    var instantiator = new GameObjectInstantiator(m_Gltf, go.transform, instantiationLogger, instantiationSettings);
+                    var instantiator = GetInstantiator(m_Gltf, go.transform, instantiationLogger, instantiationSettings);
                     var index = sceneIndex;
                     success = AsyncHelpers.RunSync(() => m_Gltf.InstantiateSceneAsync(instantiator, index));
                     if (!success) break;

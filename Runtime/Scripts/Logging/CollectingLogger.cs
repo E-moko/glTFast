@@ -20,12 +20,17 @@ using UnityEngine;
 
 namespace GLTFast.Logging
 {
+    public interface ICollectingLogger: ICodeLogger
+    {
+        int Count { get; }
+        IEnumerable<LogItem> Items { get; }
+    }
 
     /// <summary>
     /// Logger that stores/collects all messages.
     /// </summary>
     [Serializable]
-    public class CollectingLogger : ICodeLogger
+    public class CollectingLogger : ICollectingLogger
     {
 
         List<LogItem> m_Items;
