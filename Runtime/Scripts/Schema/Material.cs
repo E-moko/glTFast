@@ -19,11 +19,32 @@ using UnityEngine;
 namespace GLTFast.Schema
 {
 
+    [System.Serializable]
+    public class MaterialExtras : BaseExtras
+    {
+        public string emk_shader_name;
+        public string emk_shader_properties;
+
+        internal override void GltfSerialize(JsonWriter writer)
+        {
+            base.GltfSerialize(writer);
+            if (!string.IsNullOrEmpty(emk_shader_name))
+            {
+                writer.AddProperty("emk_shader_name", emk_shader_name);
+            }
+            if (!string.IsNullOrEmpty(emk_shader_properties))
+            {
+                writer.AddProperty("emk_shader_properties", emk_shader_properties);
+            }
+        }
+    }
+
     /// <summary>
     /// The material appearance of a primitive.
     /// </summary>
     [System.Serializable]
-    public class Material : NamedObject<BaseExtras> {
+    public class Material : NamedObject<MaterialExtras>
+    {
 
         /// <summary>
         /// The material’s alpha rendering mode enumeration specifying the
